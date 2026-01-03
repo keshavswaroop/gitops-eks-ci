@@ -1,8 +1,23 @@
 from fastapi import FastAPI
 import os
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI(title="AWS Production Platform")
 
+# -----------------------------
+# Prometheus Instrumentation
+# -----------------------------
+Instrumentator(
+    should_group_status_codes=False,
+    should_ignore_untemplated=True,
+    should_respect_env_var=True,
+    excluded_handlers=["/metrics"]
+).instrument(app).expose(app)
+
+# -----------------------------
+# Routes
+# -----------------------------
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -21,9 +36,11 @@ def secret_check():
     }
 
 @app.get("/version")
-def root():
-    return {"version": "v4"}
+def version():
+    return {"version": "v5"}
 
 # @app.get("/bug")
-# def root():
+# def bug():
 #     return {"message": "BUGGY VERSION"}
+
+
