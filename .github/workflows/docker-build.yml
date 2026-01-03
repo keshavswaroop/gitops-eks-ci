@@ -28,7 +28,7 @@ jobs:
         with:
           repository: keshavswaroop/gitops-eks-cd
           token: ${{ secrets.REPO_GITHUB_TOKEN }}
-          path: gitops
+          path: apps
 
       - name: Update image tag
         run: |
