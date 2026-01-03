@@ -1,4 +1,4 @@
-name: CI - Build & Update GitOps
+name: Build and Push Docker Image
 
 on:
   push:
@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout app repo
+      - name: Checkout CI repo
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -23,23 +23,20 @@ jobs:
           docker build -t swaroops2803/gitops-eks-app:${{ github.run_number }} .
           docker push swaroops2803/gitops-eks-app:${{ github.run_number }}
 
-      - name: Checkout GitOps repo
-        uses: actions/checkout@v4
-        with:
-          repository: keshavswaroop/gitops-eks-cd
-          token: ${{ secrets.REPO_GITHUB_TOKEN }}
-          path: apps
-
-      - name: Update image tag
+      - name: Clone GitOps CD repo
         run: |
-          sed -i "s|image: swaroops2803/gitops-eks-app:.*|image: swaroops2803/gitops-eks-app:${{ github.run_number }}|" \
-          gitops/apps/app/deployment.yaml
+          git clone https://keshavswaroop:${{ secrets.REPO_GITHUB_TOKEN }}@github.com/keshavswaroop/gitops-eks-cd.git
+
+      - name: Update deployment image
+        run: |
+          sed -i "s|image: .*|image: swaroops2803/gitops-eks-app:${{ github.run_number }}|" \
+          gitops-eks-cd/gitops/apps/app/deployment.yaml
 
       - name: Commit and push changes
         run: |
-          cd gitops
+          cd gitops-eks-cd
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .
+          git add gitops/apps/app/deployment.yaml
           git commit -m "Update image to ${{ github.run_number }}"
           git push
