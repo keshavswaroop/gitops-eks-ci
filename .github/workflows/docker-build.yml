@@ -30,13 +30,13 @@ jobs:
       - name: Update deployment image
         run: |
           sed -i "s|image: .*|image: swaroops2803/gitops-eks-app:${{ github.run_number }}|" \
-          gitops-eks-cd/gitops/apps/app/deployment.yaml
+          gitops-eks-cd/apps/app/deployment.yml
 
       - name: Commit and push changes
         run: |
           cd gitops-eks-cd
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add gitops/apps/app/deployment.yaml
+          git add apps/app/deployment.yml
           git commit -m "Update image to ${{ github.run_number }}"
           git push
