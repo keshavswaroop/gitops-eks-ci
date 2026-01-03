@@ -23,3 +23,7 @@ def secret_check():
 @app.get("/version")
 def root():
     return {"version": "v4"}
+
+@app.get("/bug")
+def root():
+    return {"message": "BUGGY VERSION"}
